@@ -1,12 +1,4 @@
-import {
-  Button,
-  Flex,
-  Box,
-  VStack,
-  Icon,
-  useMediaQuery,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Button, Flex, Box, VStack, Icon } from "@chakra-ui/react";
 import { HiMenuAlt2 } from "react-icons/hi";
 import { MdSpaceDashboard, MdPeople } from "react-icons/md";
 import { FaUserPlus } from "react-icons/fa6";
@@ -20,43 +12,25 @@ const menuItems = [
   { icon: HiSearch, label: "Search", url: "/search" },
 ];
 
-export const Sidebar = () => {
+export const Sidebar = ({ isExpandedSidebar, onToggleSidebar }) => {
   const router = useRouter();
-  const [isExpandedSidebar, setIsExpandedSidebar] = useState(true);
-  const [localStorageChecked, setLocalStorageChecked] = useState(false);
-  const [isMobile] = useMediaQuery("(max-width: 768px)");
   const sidebarWidth = isExpandedSidebar ? "250px" : "70px";
   const buttonWidth = isExpandedSidebar ? "100%" : "70px";
 
   const isActive = (url) => router.pathname === url;
 
-  useEffect(() => {
-    const storedSidebarState = localStorage.getItem("sidebarState");
-    setIsExpandedSidebar(storedSidebarState === "expanded" && !isMobile);
-    setLocalStorageChecked(true);
-  }, [isMobile]);
-
-  useEffect(() => {
-    if (localStorageChecked) {
-      localStorage.setItem(
-        "sidebarState",
-        isExpandedSidebar ? "expanded" : "collapsed"
-      );
-    }
-  }, [isExpandedSidebar, localStorageChecked]);
-
-  if (!localStorageChecked) {
-    return null;
-  }
-
   return (
     <Flex
+      position="fixed"
+      zIndex={999}
       direction="column"
       h="100vh"
       w={sidebarWidth}
       bg="gray.200"
       pt={"72px"}
       transition="width 0.3s"
+      borderRight={"1px"}
+      borderColor={"gray.300"}
     >
       <VStack spacing={4} align={"stretch"}>
         <Box w={buttonWidth}>
@@ -65,8 +39,9 @@ export const Sidebar = () => {
               color: "blue.600",
               boxShadow: "inset 3px 0px 0px 0px #2b6cb0",
             }}
-            onClick={() => setIsExpandedSidebar(!isExpandedSidebar)}
+            onClick={onToggleSidebar}
             w="100%"
+            variant="ghost"
             leftIcon={<Icon as={HiMenuAlt2} />}
             justifyContent={isExpandedSidebar ? "left" : "center"}
             borderRadius={0}
