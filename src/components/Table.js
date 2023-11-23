@@ -1,9 +1,13 @@
 import { Box } from "@chakra-ui/react";
 import React from "react";
 import { useTable, useBlockLayout, useResizeColumns } from "react-table";
-import { VariableSizeList as List } from "react-window";
+import { AutoSizer } from "react-virtualized";
+import { VariableSizeGrid as Grid } from "react-window";
 
 const TableList = ({ columns, data }) => {
+  const columnWidths = columns.map(() => 150);
+  const getColumnWidth = (index) => columnWidths[index];
+
   const { getTableProps, headerGroups, rows, prepareRow, totalColumnsWidth } =
     useTable(
       {
@@ -14,28 +18,30 @@ const TableList = ({ columns, data }) => {
       useResizeColumns
     );
 
-  const RenderRow = ({ index, style }) => {
-    const row = rows[index];
-    prepareRow(row);
+  const renderCell = ({ columnIndex, rowIndex, style }) => {
+    const column = columns[columnIndex];
+    const rowData = data[rowIndex];
     return (
-      <div {...row.getRowProps({ style })}>
-        {row.cells.map((cell) => (
-          <Box
-            key={cell.column.id}
-            borderWidth="1px"
-            borderColor="gray"
-            {...cell.getCellProps()}
-          >
-            {cell.render("Cell")}
-          </Box>
-        ))}
+      <div
+        style={{
+          ...style,
+          border: "1px solid gray",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {rowData[column.accessor]}
       </div>
     );
   };
 
   return (
-    <div>
-      <div {...getTableProps()} style={{ width: totalColumnsWidth }}>
+    <Box height="100vh">
+      <div
+        {...getTableProps()}
+        style={{ width: totalColumnsWidth, height: "100%" }}
+      >
         <div>
           {headerGroups.map((headerGroup) => (
             <div {...headerGroup.getHeaderGroupProps()}>
@@ -45,6 +51,7 @@ const TableList = ({ columns, data }) => {
                   {...column.getHeaderProps(column.getResizerProps())}
                   style={{
                     width: column.width,
+                    border: "1px solid gray",
                     boxSizing: "border-box",
                     display: "inline-block",
                   }}
@@ -55,16 +62,22 @@ const TableList = ({ columns, data }) => {
             </div>
           ))}
         </div>
-        <List
-          height={400}
-          itemCount={rows.length}
-          itemSize={() => 35}
-          width={totalColumnsWidth}
-        >
-          {RenderRow}
-        </List>
+        <AutoSizer>
+          {({ height, width }) => (
+            <Grid
+              columnCount={columns.length}
+              columnWidth={(index) => getColumnWidth(index)}
+              height={height}
+              rowCount={data.length}
+              rowHeight={() => 35}
+              width={width}
+            >
+              {renderCell}
+            </Grid>
+          )}
+        </AutoSizer>
       </div>
-    </div>
+    </Box>
   );
 };
 
