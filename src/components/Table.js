@@ -11,12 +11,12 @@ import { Box } from "@chakra-ui/react";
 function TableList({ data, columns }) {
   const gridRef = useRef();
 
-  const getInitialColumnWidths = () => Array(columns.length).fill(250);
-  const calcHeaderWidth = () =>
-    getInitialColumnWidths().reduce((acc, w) => acc + w, 0);
+  const initialColumnWidth = () => Array(columns.length).fill(250);
+  const initialHeaderWidth = () =>
+    initialColumnWidth().reduce((acc, w) => acc + w, 0);
 
-  const [columnWidth, setColumnWidth] = useState(getInitialColumnWidths());
-  const [headerWidth, setHeaderWidth] = useState(calcHeaderWidth);
+  const [columnWidth, setColumnWidth] = useState(initialColumnWidth());
+  const [headerWidth, setHeaderWidth] = useState(initialHeaderWidth);
   const [openedShowMore, setOpenedShowMore] = useState(null);
 
   const Cell = ({ columnIndex, rowIndex, style }) => {
@@ -26,33 +26,35 @@ function TableList({ data, columns }) {
     return (
       <>
         <div
-          style={{ ...style, marginTop: "35px" }}
-          className="main-grid"
+          style={{
+            ...style,
+            marginTop: "35px",
+          }}
+          className="cell-container"
           ref={refItem}
         >
-          {content}
-          {content.length * 14 > columnWidth[columnIndex] && (
-            <>
-              <Box
-                position="absolute"
-                top={0}
-                right={0}
-                height={35}
-                bgGradient="linear(to-r, rgba(255,255,255,0), white, white)"
-                w="80px"
-              />
-              <IoIosArrowDroprightCircle
-                size="24px"
-                style={{
-                  position: "absolute",
-                  top: 5,
-                  right: 5,
-                  color: "GrayText",
-                  cursor: "pointer",
-                }}
-                onClick={() => setOpenedShowMore(`${columnIndex},${rowIndex}`)}
-              />
-            </>
+          <div
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              marginRight: "25px",
+            }}
+          >
+            {content}
+          </div>
+          {content.length * 10 > columnWidth[columnIndex] && (
+            <IoIosArrowDroprightCircle
+              size="24px"
+              style={{
+                position: "absolute",
+                top: 5,
+                right: 5,
+                color: "GrayText",
+                cursor: "pointer",
+              }}
+              onClick={() => setOpenedShowMore(`${columnIndex},${rowIndex}`)}
+            />
           )}
         </div>
 
@@ -106,8 +108,7 @@ function TableList({ data, columns }) {
             width={width}
             innerElementType={({ children }) => (
               <Box
-                fontFamily="mono"
-                className="grid-container"
+                className="table-container"
                 style={{
                   height: data.length * 35,
                 }}
@@ -123,19 +124,16 @@ function TableList({ data, columns }) {
                       <Draggable
                         axis="x"
                         onDrag={(event, { deltaX, deltaY }) => {
-                          setColumnWidth((prevWidths) => {
-                            const newWidths = [...prevWidths];
-                            newWidths[key] = newWidths[key] + deltaX;
-                            return newWidths;
-                          });
+                          const prevWidths = [...columnWidth];
+                          prevWidths[key] = prevWidths[key] + deltaX;
                         }}
                         onStop={(event, drag) => {
-                          setColumnWidth((prevWidths) => {
-                            const newWidths = [...prevWidths];
-                            newWidths[key] = 250 + drag.x;
-                            return newWidths;
-                          });
-                          setHeaderWidth(calcHeaderWidth());
+                          const prevWidths = [...columnWidth];
+                          prevWidths[key] = 250 + drag.x;
+                          setColumnWidth(prevWidths);
+                          setHeaderWidth(
+                            prevWidths.reduce((acc, w) => acc + w, 0)
+                          );
                           gridRef.current.resetAfterColumnIndex(key);
                         }}
                       >
