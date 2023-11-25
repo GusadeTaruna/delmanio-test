@@ -11,7 +11,7 @@ import { Box } from "@chakra-ui/react";
 function TableList({ data, columns }) {
   const gridRef = useRef();
 
-  const initialColumnWidth = () => Array(columns.length).fill(250);
+  const initialColumnWidth = () => Array(columns.length).fill(150);
   const initialHeaderWidth = () =>
     initialColumnWidth().reduce((acc, w) => acc + w, 0);
 
@@ -64,7 +64,7 @@ function TableList({ data, columns }) {
               ...style,
               height: "100px",
               background: "white",
-              border: "cyan 1px solid",
+              border: "blue 1px solid",
               padding: "5px",
               zIndex: 999,
               fontWeight: "bold",
@@ -95,7 +95,6 @@ function TableList({ data, columns }) {
 
   return (
     <Box p={4} height={"70vh"}>
-      {" "}
       <AutoSizer>
         {({ height, width }) => (
           <Grid
@@ -118,7 +117,12 @@ function TableList({ data, columns }) {
                     <div
                       className="col"
                       key={`colHeader-${key}`}
-                      style={{ width: columnWidth[key] }}
+                      style={{
+                        width: columnWidth[key],
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
                     >
                       {col.Header}
                       <Draggable
@@ -129,7 +133,7 @@ function TableList({ data, columns }) {
                         }}
                         onStop={(event, drag) => {
                           const prevWidths = [...columnWidth];
-                          prevWidths[key] = 250 + drag.x;
+                          prevWidths[key] = 150 + drag.x;
                           setColumnWidth(prevWidths);
                           setHeaderWidth(
                             prevWidths.reduce((acc, w) => acc + w, 0)

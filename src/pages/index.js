@@ -1,10 +1,10 @@
 import { Box, Heading } from "@chakra-ui/react";
 import { useQuery } from "react-query";
-import axios from "axios";
 import TableList from "@/components/Table";
+import { getSalesData } from "@/services/GET_SalesData";
 
 export default function Home() {
-  const { data: salesData } = useQuery("salesData", fetchSalesData);
+  const { data: salesData } = useQuery("salesData", getSalesData);
 
   const columns = [
     { Header: "id", accessor: "id" },
@@ -29,14 +29,4 @@ export default function Home() {
       {salesData && <TableList columns={columns} data={salesData} />}
     </Box>
   );
-}
-
-async function fetchSalesData() {
-  try {
-    const response = await axios.get("https://delman-fe-api.fly.dev/");
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching sales data:", error);
-    throw error;
-  }
 }
