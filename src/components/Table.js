@@ -8,7 +8,7 @@ import { FaGripLinesVertical } from "react-icons/fa";
 import { IoIosArrowDroprightCircle, IoIosCloseCircle } from "react-icons/io";
 import { Box } from "@chakra-ui/react";
 
-function TableList({ data, columns }) {
+const TableList = ({ data, columns }) => {
   const gridRef = useRef();
 
   const initialColumnWidth = () => Array(columns.length).fill(150);
@@ -158,6 +158,6 @@ function TableList({ data, columns }) {
       </AutoSizer>
     </Box>
   );
-}
+};
 
 export default TableList;

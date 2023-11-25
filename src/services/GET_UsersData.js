@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function getUsersData() {
+export const getUsersData = async () => {
   try {
     const response = await axios.get("https://delman-fe-api.fly.dev/users");
     return response.data.data;
@@ -8,4 +8,4 @@ export async function getUsersData() {
     console.error("Error fetching sales data:", error);
     throw error;
   }
-}
+};
