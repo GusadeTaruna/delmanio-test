@@ -9,11 +9,17 @@ import {
   FormLabel,
   VStack,
   FormErrorMessage,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  useToast,
 } from "@chakra-ui/react";
 import { IoIosAlert } from "react-icons/io";
 import { postAddUser } from "@/services/POST_AddUser";
 
 const UserForm = () => {
+  const toast = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const isErrorName = name === "";
@@ -22,9 +28,36 @@ const UserForm = () => {
   const handleInputChangeName = (e) => setName(e.target.value);
   const handleInputChangeEmail = (e) => setEmail(e.target.value);
 
-  const mutation = useMutation(postAddUser);
+  const mutation = useMutation(postAddUser, {
+    onMutate: () => {
+      toast({
+        title: "Please wait...",
+        status: "loading",
+        isClosable: false,
+      });
+    },
+    onSettled: (data, error, variables, context) => {
+      toast.closeAll();
 
-  const handleSubmit = () => {
+      if (error) {
+        toast({
+          title: "Email already exists",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: "User Created",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    },
+  });
+
+  const handleSubmit = async () => {
     mutation.mutate({ name, email });
   };
 

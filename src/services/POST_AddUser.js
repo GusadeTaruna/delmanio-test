@@ -8,7 +8,10 @@ export const postAddUser = async ({ name, email }) => {
     });
 
     console.log(`User created: ${name}, ${email}`);
+
+    return response.data;
   } catch (error) {
     console.error("Error creating user:", error.message);
+    throw error;
   }
 };
