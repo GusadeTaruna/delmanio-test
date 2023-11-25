@@ -1,10 +1,25 @@
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Heading, useToast } from "@chakra-ui/react";
 import { useQuery } from "react-query";
 import TableList from "@/components/Table";
 import { getUsersData } from "@/services/GET_UsersData";
+import { useEffect } from "react";
 
 export default function Users() {
-  const { data: userData } = useQuery("userData", getUsersData);
+  const toast = useToast();
+  const { isLoading, data: userData } = useQuery("userData", getUsersData);
+
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading Users Data...",
+        status: "loading",
+        isClosable: false,
+        position: "top",
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
 
   const columns = [
     { Header: "id", accessor: "id" },

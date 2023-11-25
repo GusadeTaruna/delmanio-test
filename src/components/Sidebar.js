@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 const menuItems = [
   { icon: MdSpaceDashboard, label: "Dashboard", url: "/" },
   { icon: MdPeople, label: "Users", url: "/users" },
-  { icon: FaUserPlus, label: "Registration", url: "/registration" },
+  { icon: FaUserPlus, label: "Registration", url: "/register" },
   { icon: HiSearch, label: "Search", url: "/search" },
 ];
 

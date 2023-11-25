@@ -1,10 +1,25 @@
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Heading, useToast } from "@chakra-ui/react";
 import { useQuery } from "react-query";
 import TableList from "@/components/Table";
 import { getSalesData } from "@/services/GET_SalesData";
+import { useEffect } from "react";
 
 export default function Home() {
-  const { data: salesData } = useQuery("salesData", getSalesData);
+  const toast = useToast();
+  const { isLoading, data: salesData } = useQuery("salesData", getSalesData);
+
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading Sales Data...",
+        status: "loading",
+        isClosable: false,
+        position: "top",
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
 
   const columns = [
     { Header: "id", accessor: "id" },

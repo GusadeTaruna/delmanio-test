@@ -1,4 +1,3 @@
-// UserRegistration.js
 import { useState } from "react";
 import { useMutation } from "react-query";
 import {
@@ -9,10 +8,6 @@ import {
   FormLabel,
   VStack,
   FormErrorMessage,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
   useToast,
 } from "@chakra-ui/react";
 import { IoIosAlert } from "react-icons/io";
@@ -34,6 +29,7 @@ const UserForm = () => {
         title: "Please wait...",
         status: "loading",
         isClosable: false,
+        position: "top",
       });
     },
     onSettled: (data, error, variables, context) => {
@@ -45,6 +41,7 @@ const UserForm = () => {
           status: "error",
           duration: 3000,
           isClosable: true,
+          position: "top",
         });
       } else {
         toast({
@@ -52,6 +49,7 @@ const UserForm = () => {
           status: "success",
           duration: 3000,
           isClosable: true,
+          position: "top",
         });
       }
     },

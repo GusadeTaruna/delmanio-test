@@ -1,5 +1,3 @@
-// components/Table.js
-
 import React, { useRef, useState } from "react";
 import { AutoSizer } from "react-virtualized";
 import { VariableSizeGrid as Grid } from "react-window";
