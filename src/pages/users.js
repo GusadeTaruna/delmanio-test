@@ -4,7 +4,7 @@ import TableList from "@/components/Table";
 import { getUsersData } from "@/services/GET_UsersData";
 import { useEffect } from "react";
 
-export default function Users() {
+const Users = () => {
   const toast = useToast();
   const { isLoading, data: userData } = useQuery("userData", getUsersData);
 
@@ -66,4 +66,6 @@ export default function Users() {
       {userData && <TableList columns={columns} data={userData} />}
     </Box>
   );
-}
+};
+
+export default Users;

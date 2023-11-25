@@ -4,7 +4,7 @@ import TableList from "@/components/Table";
 import { getSalesData } from "@/services/GET_SalesData";
 import { useEffect } from "react";
 
-export default function Home() {
+const Home = () => {
   const toast = useToast();
   const { isLoading, data: salesData } = useQuery("salesData", getSalesData);
 
@@ -44,4 +44,6 @@ export default function Home() {
       {salesData && <TableList columns={columns} data={salesData} />}
     </Box>
   );
-}
+};
+
+export default Home;

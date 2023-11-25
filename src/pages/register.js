@@ -1,7 +1,7 @@
 import { Box, Heading } from "@chakra-ui/react";
 import UserForm from "@/components/UserForm";
 
-export default function Registration() {
+const Registration = () => {
   return (
     <Box pt={"65px"} bg={"white"} width={"100%"}>
       <Box px={4} pb={2} borderBottom="1px" borderColor="gray.300" mb={2}>
@@ -15,4 +15,6 @@ export default function Registration() {
       <UserForm />
     </Box>
   );
-}
+};
+
+export default Registration;
