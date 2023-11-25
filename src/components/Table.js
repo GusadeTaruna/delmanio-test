@@ -1,46 +1,161 @@
-import { Box } from "@chakra-ui/react";
-import React from "react";
-import { useTable, useBlockLayout, useResizeColumns } from "react-table";
+// components/Table.js
+
+import React, { useRef, useState } from "react";
 import { AutoSizer } from "react-virtualized";
 import { VariableSizeGrid as Grid } from "react-window";
+import Draggable from "react-draggable";
+import { FaGripLinesVertical } from "react-icons/fa";
+import { IoIosArrowDroprightCircle, IoIosCloseCircle } from "react-icons/io";
+import { Box } from "@chakra-ui/react";
 
-const TableList = ({ columns, data }) => {
-  const renderCell = ({ columnIndex, rowIndex, style }) => {
-    const column = columns[columnIndex];
-    const rowData = data[rowIndex];
+function TableList({ data, columns }) {
+  const gridRef = useRef();
+
+  const getInitialColumnWidths = () => Array(columns.length).fill(250);
+  const calcHeaderWidth = () =>
+    getInitialColumnWidths().reduce((acc, w) => acc + w, 0);
+
+  const [columnWidth, setColumnWidth] = useState(getInitialColumnWidths());
+  const [headerWidth, setHeaderWidth] = useState(calcHeaderWidth);
+  const [openedShowMore, setOpenedShowMore] = useState(null);
+
+  const Cell = ({ columnIndex, rowIndex, style }) => {
+    const refItem = useRef();
+    const content = data[rowIndex][columns[columnIndex].accessor];
+
     return (
-      <div
-        style={{
-          ...style,
-          border: "1px solid gray",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {rowData[column.accessor]}
-      </div>
+      <>
+        <div
+          style={{ ...style, marginTop: "35px" }}
+          className="main-grid"
+          ref={refItem}
+        >
+          {content}
+          {content.length * 14 > columnWidth[columnIndex] && (
+            <>
+              <Box
+                position="absolute"
+                top={0}
+                right={0}
+                height={35}
+                bgGradient="linear(to-r, rgba(255,255,255,0), white, white)"
+                w="80px"
+              />
+              <IoIosArrowDroprightCircle
+                size="24px"
+                style={{
+                  position: "absolute",
+                  top: 5,
+                  right: 5,
+                  color: "GrayText",
+                  cursor: "pointer",
+                }}
+                onClick={() => setOpenedShowMore(`${columnIndex},${rowIndex}`)}
+              />
+            </>
+          )}
+        </div>
+
+        {openedShowMore == `${columnIndex},${rowIndex}` && (
+          <div
+            style={{
+              ...style,
+              height: "100px",
+              background: "white",
+              border: "cyan 1px solid",
+              padding: "5px",
+              zIndex: 999,
+              fontWeight: "bold",
+            }}
+          >
+            <Box
+              bg="white"
+              position="absolute"
+              top={-13}
+              right={-13}
+              rounded="full"
+            >
+              <IoIosCloseCircle
+                style={{
+                  color: "GrayText",
+                  cursor: "pointer",
+                }}
+                size="24px"
+                onClick={() => setOpenedShowMore(null)}
+              />
+            </Box>
+            {content}
+          </div>
+        )}
+      </>
     );
   };
 
   return (
-    <Box px={4} height="70vh">
+    <Box p={4} height={"70vh"}>
+      {" "}
       <AutoSizer>
         {({ height, width }) => (
           <Grid
+            ref={gridRef}
             columnCount={columns.length}
-            columnWidth={() => 150}
+            columnWidth={(index) => columnWidth[index]}
             height={height}
             rowCount={data.length}
             rowHeight={() => 35}
             width={width}
+            innerElementType={({ children }) => (
+              <Box
+                fontFamily="mono"
+                className="grid-container"
+                style={{
+                  height: data.length * 35,
+                }}
+              >
+                <div className="header" style={{ width: headerWidth }}>
+                  {columns.map((col, key) => (
+                    <div
+                      className="col"
+                      key={`colHeader-${key}`}
+                      style={{ width: columnWidth[key] }}
+                    >
+                      {col.Header}
+                      <Draggable
+                        axis="x"
+                        onDrag={(event, { deltaX, deltaY }) => {
+                          setColumnWidth((prevWidths) => {
+                            const newWidths = [...prevWidths];
+                            newWidths[key] = newWidths[key] + deltaX;
+                            return newWidths;
+                          });
+                        }}
+                        onStop={(event, drag) => {
+                          setColumnWidth((prevWidths) => {
+                            const newWidths = [...prevWidths];
+                            newWidths[key] = 250 + drag.x;
+                            return newWidths;
+                          });
+                          setHeaderWidth(calcHeaderWidth());
+                          gridRef.current.resetAfterColumnIndex(key);
+                        }}
+                      >
+                        <div className="grid-draggable-handler">
+                          <FaGripLinesVertical />
+                        </div>
+                      </Draggable>
+                    </div>
+                  ))}
+                </div>
+                <div>{children}</div>
+              </Box>
+            )}
           >
-            {renderCell}
+            {Cell}
           </Grid>
         )}
       </AutoSizer>
     </Box>
   );
-};
+}
 
 export default TableList;
