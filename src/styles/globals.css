@@ -47,3 +47,15 @@
   background: #fff;
   height: 300;
 }
+
+.label-wrap {
+  width: 200px;
+  text-align: left;
+  float: left;
+}
+
+.info {
+  width: 400px;
+  float: left;
+  text-align: left;
+}

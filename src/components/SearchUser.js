@@ -1,24 +1,79 @@
-import { getUserDetail } from "@/services/GET_UserDetail";
 import { SearchIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
   Heading,
   Icon,
   Input,
   InputGroup,
   InputLeftElement,
   Text,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FixedSizeList as List } from "react-window";
 
-const SearchUser = ({ data, isLoading }) => {
-  const [userData, setUserData] = useState();
+const SearchUser = ({ data }) => {
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedUser, setSelectedUser] = useState({});
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading Users Data...",
+        status: "loading",
+        isClosable: false,
+        position: "top",
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
 
   const handleSearchUser = async (email) => {
-    const user = data.find(
-      (item) => item.email.toLowerCase() === email.toLowerCase()
+    setSearchInput(email);
+    setIsLoading(true);
+
+    setTimeout(async () => {
+      if (email === "") {
+        setSearchResults([]);
+      } else {
+        const results = data.filter((item) =>
+          item.email.toLowerCase().includes(email.toLowerCase())
+        );
+        setSearchResults(results);
+      }
+
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleViewProfile = (user) => {
+    setSelectedUser(user);
+    onOpen();
+  };
+
+  const UserDetailsList = ({ data }) => {
+    return (
+      <>
+        {Object.entries(data).map(([key, value]) => (
+          <div key={key} style={{ display: "flex" }}>
+            <div className="label-wrap">{key}</div>
+            <div className="info">: {value}</div>
+          </div>
+        ))}
+      </>
     );
-    setUserData(user);
   };
 
   return (
@@ -29,26 +84,83 @@ const SearchUser = ({ data, isLoading }) => {
         </InputLeftElement>
         <Input
           type="text"
-          placeholder="Search users"
+          placeholder="Search users by email"
           onChange={(e) => {
             handleSearchUser(e.target.value);
           }}
         />
       </InputGroup>
 
-      {userData && (
+      {searchResults.length > 0 ? (
+        searchResults.map((user, index) => (
+          <Box
+            key={index}
+            border="1px solid #ddd"
+            borderRadius={"6px"}
+            px={10}
+            py={28}
+            textAlign={"center"}
+            mt={4}
+          >
+            <Heading>{user.name}</Heading>
+            <Text fontSize="md">{user.email}</Text>
+            <hr style={{ margin: "12px auto", width: "60%" }} />
+            <Button onClick={() => handleViewProfile(user)}>
+              View User Profile
+            </Button>
+          </Box>
+        ))
+      ) : searchInput !== "" && !isLoading ? (
         <Box
           border="1px solid #ddd"
           borderRadius={"6px"}
           px={10}
           py={28}
           textAlign={"center"}
+          mt={4}
         >
-          <Heading>{userData.name}</Heading>
-          <Text fontSize="md">{userData.email}</Text>
-          <hr />
+          <Heading>No data found</Heading>
+          <Text fontSize="md">
+            The data with the email inputted is not available.
+          </Text>
+        </Box>
+      ) : (
+        <Box
+          border="1px solid #ddd"
+          borderRadius={"6px"}
+          px={10}
+          py={28}
+          textAlign={"center"}
+          mt={4}
+        >
+          <Heading>The result will be shown here.</Heading>
+          <Text fontStyle={"italic"} fontSize="md">
+            type or search something...
+          </Text>
         </Box>
       )}
+
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size={"lg"}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerBody>
+            <Heading size="lg" mt={3}>
+              Users Detail
+            </Heading>
+            <Text fontSize="sm" mb={5}>
+              This is inquiry about user with email: {selectedUser.email}
+            </Text>
+            <List
+              height={500}
+              width={600}
+              itemCount={1}
+              itemSize={Object.keys(selectedUser).length}
+            >
+              {() => <UserDetailsList data={selectedUser} />}
+            </List>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 };
