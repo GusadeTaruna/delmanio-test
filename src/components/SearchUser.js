@@ -1,3 +1,4 @@
+import { deleteUserData } from "@/services/DELETE_UserData";
 import { SearchIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -5,6 +6,7 @@ import {
   Drawer,
   DrawerBody,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   Heading,
@@ -17,6 +19,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useMutation } from "react-query";
 import { FixedSizeList as List } from "react-window";
 
 const SearchUser = ({ data }) => {
@@ -74,6 +77,47 @@ const SearchUser = ({ data }) => {
         ))}
       </>
     );
+  };
+
+  const mutation = useMutation(deleteUserData, {
+    onMutate: () => {
+      toast({
+        title: "Please wait...",
+        status: "loading",
+        isClosable: false,
+        position: "top",
+      });
+    },
+    onSettled: (data, error, variables, context) => {
+      toast.closeAll();
+      if (!error) {
+        onClose();
+        toast({
+          title: "User Deleted, Reloading Page...",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+        setTimeout(() => {
+          onClose();
+          window.location.reload();
+        }, 500);
+      } else {
+        toast({
+          title: "Something went wrong",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      }
+    },
+  });
+
+  const handleDeleteUser = async () => {
+    const { id, name, email } = selectedUser;
+    mutation.mutate({ id, name, email });
   };
 
   return (
@@ -155,10 +199,23 @@ const SearchUser = ({ data }) => {
               width={600}
               itemCount={1}
               itemSize={Object.keys(selectedUser).length}
+              style={{
+                border: "1px solid #e3e3e3",
+                padding: "8px",
+                width: "100% !important",
+              }}
             >
               {() => <UserDetailsList data={selectedUser} />}
             </List>
           </DrawerBody>
+          <DrawerFooter>
+            <Button variant="ghost" ml={3} mr="auto" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="red" onClick={handleDeleteUser}>
+              Delete User
+            </Button>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </Box>
