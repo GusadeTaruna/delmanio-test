@@ -69,7 +69,14 @@ const UserForm = () => {
           <Input
             type="text"
             placeholder="Enter your name"
-            {...register("name", { required: "Please provide name" })}
+            {...register("name", {
+              required: "Please provide name",
+              minLength: {
+                value: 3,
+                message: "Please input minimal 3 character",
+              },
+            })}
+            data-testid="name-input"
           />
           {errors.name && (
             <FormErrorMessage>
@@ -98,6 +105,7 @@ const UserForm = () => {
                 message: "Please provide valid email format",
               },
             })}
+            data-testid="email-input"
           />
           {errors.email && (
             <FormErrorMessage>
@@ -122,6 +130,7 @@ const UserForm = () => {
             _disabled={{
               backgroundColor: "gray.200",
             }}
+            data-testid="submit-button"
           >
             Submit User
           </Button>

@@ -16,7 +16,7 @@ const Search = () => {
           Search existing user
         </Heading>
       </Box>
-      <SearchUser data={userData} />
+      {userData && <SearchUser data={userData} />}
     </Box>
   );
 };

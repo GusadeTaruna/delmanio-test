@@ -132,6 +132,7 @@ const SearchUser = ({ data }) => {
           onChange={(e) => {
             handleSearchUser(e.target.value);
           }}
+          data-testid="email-search"
         />
       </InputGroup>
 
@@ -152,6 +153,7 @@ const SearchUser = ({ data }) => {
             <Button
               onClick={() => handleViewProfile(user)}
               colorScheme={"blue"}
+              data-testid="view-detail-button"
             >
               View User Profile
             </Button>
