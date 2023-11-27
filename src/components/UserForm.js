@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import {
   Box,
@@ -15,13 +15,8 @@ import { postAddUser } from "@/services/POST_AddUser";
 
 const UserForm = () => {
   const toast = useToast();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const isErrorName = name === "";
-  const isErrorEmail = email === "";
-
-  const handleInputChangeName = (e) => setName(e.target.value);
-  const handleInputChangeEmail = (e) => setEmail(e.target.value);
+  const { handleSubmit, register, formState } = useForm();
+  const { errors } = formState;
 
   const mutation = useMutation(postAddUser, {
     onMutate: () => {
@@ -32,7 +27,7 @@ const UserForm = () => {
         position: "top",
       });
     },
-    onSettled: (data, error, variables, context) => {
+    onSettled: (data, error) => {
       toast.closeAll();
 
       if (error) {
@@ -55,45 +50,59 @@ const UserForm = () => {
     },
   });
 
-  const handleSubmit = async () => {
-    mutation.mutate({ name, email });
+  const onSubmit = (data) => {
+    mutation.mutate(data);
   };
 
   return (
     <Box p={4} w={"fit-content"}>
-      <VStack spacing={4} align="stretch">
-        <FormControl isInvalid={isErrorName}>
-          <FormLabel color={isErrorName && "red.600"} fontSize={"14px"}>
+      <VStack
+        spacing={4}
+        align="stretch"
+        as="form"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormControl isInvalid={!!errors.name}>
+          <FormLabel color={errors.name && "red.600"} fontSize={"14px"}>
             Name
           </FormLabel>
           <Input
             type="text"
             placeholder="Enter your name"
-            value={name}
-            onChange={handleInputChangeName}
+            {...register("name", { required: "Please provide name" })}
           />
-          {isErrorName && (
+          {errors.name && (
             <FormErrorMessage>
               <IoIosAlert />
-              <span style={{ marginLeft: "4px" }}>Please provide name</span>
+              <span style={{ marginLeft: "4px" }}>{errors.name.message}</span>
             </FormErrorMessage>
           )}
         </FormControl>
 
-        <FormControl isInvalid={isErrorEmail}>
-          <FormLabel color={isErrorEmail && "red.600"} fontSize={"14px"}>
+        <FormControl isInvalid={!!errors.email}>
+          <FormLabel color={errors.email && "red.600"} fontSize={"14px"}>
             Email
           </FormLabel>
           <Input
             type="email"
             placeholder="Enter your email"
-            value={email}
-            onChange={handleInputChangeEmail}
+            {...register("email", {
+              required: "Please provide email",
+              minLength: {
+                value: 3,
+                message: "Please input minimal 3 character",
+              },
+              pattern: {
+                value:
+                  /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                message: "Please provide valid email format",
+              },
+            })}
           />
-          {isErrorEmail && (
+          {errors.email && (
             <FormErrorMessage>
               <IoIosAlert />
-              <span style={{ marginLeft: "4px" }}>Please provide email</span>
+              <span style={{ marginLeft: "4px" }}>{errors.email.message}</span>
             </FormErrorMessage>
           )}
         </FormControl>
@@ -105,8 +114,8 @@ const UserForm = () => {
             backgroundColor="blue.400"
             color="white"
             isLoading={mutation.isLoading}
-            onClick={handleSubmit}
-            isDisabled={isErrorEmail || isErrorName ? true : false}
+            type="submit"
+            isDisabled={formState.isSubmitting}
             _hover={{
               backgroundColor: "blue.600",
             }}

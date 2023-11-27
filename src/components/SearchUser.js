@@ -149,7 +149,10 @@ const SearchUser = ({ data }) => {
             <Heading>{user.name}</Heading>
             <Text fontSize="md">{user.email}</Text>
             <hr style={{ margin: "12px auto", width: "60%" }} />
-            <Button onClick={() => handleViewProfile(user)}>
+            <Button
+              onClick={() => handleViewProfile(user)}
+              colorScheme={"blue"}
+            >
               View User Profile
             </Button>
           </Box>
